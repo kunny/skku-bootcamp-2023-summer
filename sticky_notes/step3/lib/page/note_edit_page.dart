@@ -3,7 +3,11 @@ import 'package:sticky_notes/data/note.dart';
 import 'package:sticky_notes/providers.dart';
 
 class NoteEditPage extends StatefulWidget {
-  const NoteEditPage({super.key});
+  static const routeName = '/edit';
+
+  final int? index;
+
+  const NoteEditPage(this.index, {super.key});
 
   @override
   State createState() => _NoteEditPageState();
@@ -15,6 +19,19 @@ class _NoteEditPageState extends State<NoteEditPage> {
   final _bodyController = TextEditingController();
 
   Color _color = Note.colorDefault;
+
+
+  @override
+  void initState() {
+    super.initState();
+    final noteIndex = widget.index;
+    if (noteIndex != null) {
+      final note = noteService().getNote(noteIndex);
+      _titleController.text = note.title;
+      _bodyController.text = note.body;
+      _color = note.color;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,8 +147,14 @@ class _NoteEditPageState extends State<NoteEditPage> {
         color: _color,
       );
 
-      // 노트를 추가합니다.
-      noteService().addNote(note);
+      final noteIndex = widget.index;
+      if (noteIndex != null) {
+        noteService().updateNote(noteIndex, note);
+      } else {
+        noteService().addNote(note);
+      }
+
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('노트를 입력하세요'),

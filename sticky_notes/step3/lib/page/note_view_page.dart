@@ -3,6 +3,8 @@ import 'package:sticky_notes/page/note_edit_page.dart';
 import 'package:sticky_notes/providers.dart';
 
 class NoteViewPage extends StatefulWidget {
+  static const routeName = '/view';
+
   final int index;
 
   const NoteViewPage(this.index, {super.key});
@@ -22,12 +24,12 @@ class _NoteViewPageState extends State<NoteViewPage> {
           IconButton(
             icon: const Icon(Icons.edit),
             tooltip: '편집',
-            onPressed: null,
+            onPressed: () => _edit(widget.index),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             tooltip: '삭제',
-            onPressed: null,
+            onPressed: () => _confirmDelete(widget.index),
           ),
         ],
       ),
@@ -41,5 +43,39 @@ class _NoteViewPageState extends State<NoteViewPage> {
         ),
       ),
     );
+  }
+
+  void _edit(int index) {
+    Navigator.pushNamed(
+      context,
+      NoteEditPage.routeName,
+      arguments: index,
+    ).then((value) {
+      setState(() { });
+    });
+  }
+
+  void _confirmDelete(int index) {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text('노트 삭제'),
+        content: const Text('노트를 삭제할까요?'),
+        actions: [
+          TextButton(
+            child: const Text('아니오'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          TextButton(
+            child: const Text('예'),
+            onPressed: () {
+              noteService().deleteNote(index);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          ),
+        ],
+      );
+    });
   }
 }
